@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:window_manager/window_manager.dart';
@@ -7,6 +8,7 @@ import 'screens/active_downloads_screen.dart';
 import 'screens/completed_downloads_screen.dart';
 import 'screens/settings_screen.dart';
 import 'theme/app_theme.dart';
+import 'services/theme_sevice.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,8 +33,44 @@ void main() async {
   runApp(const MainApp());
 }
 
-class MainApp extends StatelessWidget {
+class MainApp extends StatefulWidget {
   const MainApp({super.key});
+
+  @override
+  State<MainApp> createState() => _MainAppState();
+}
+
+class _MainAppState extends State<MainApp> {
+  Color _seedColor = Colors.blue;
+  Timer? _themeTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initial theme color fetch
+    _updateThemeColor();
+    
+    // Start periodic timer to check theme every 2 seconds
+    _themeTimer = Timer.periodic(
+      const Duration(seconds: 2),
+      (_) => _updateThemeColor(),
+    );
+  }
+
+  @override
+  void dispose() {
+    _themeTimer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _updateThemeColor() async {
+    final newColor = await ThemeService.getOmarchyThemeColor();
+    if (mounted && newColor != _seedColor) {
+      setState(() {
+        _seedColor = newColor;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,8 +84,8 @@ class MainApp extends StatelessWidget {
           return MaterialApp(
             title: 'DWN',
             debugShowCheckedModeBanner: false,
-            theme: AppTheme.lightTheme,
-            darkTheme: AppTheme.darkTheme,
+            theme: AppTheme.lightTheme(_seedColor),
+            darkTheme: AppTheme.darkTheme(_seedColor),
             themeMode: settingsProvider.themeMode,
             home: const MainLayout(),
           );
