@@ -9,6 +9,7 @@ import 'screens/completed_downloads_screen.dart';
 import 'screens/settings_screen.dart';
 import 'theme/app_theme.dart';
 import 'services/theme_sevice.dart';
+import 'widgets/ascii_frame.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -128,7 +129,7 @@ class _MainLayoutState extends State<MainLayout> with WindowListener {
     return Scaffold(
       body: Column(
         children: [
-          // Custom title bar
+          // Custom title bar (ASCII-inspired)
           Container(
             height: 40,
             decoration: BoxDecoration(
@@ -161,24 +162,27 @@ class _MainLayoutState extends State<MainLayout> with WindowListener {
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Row(
                         children: [
-                    
-                          const SizedBox(width: 8),
                           Text(
-                            'DWN',
-                            style: Theme.of(context).textTheme.titleSmall,
+                            '[ DWN ]',
+                            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                  fontFamily: 'monospace',
+                                  letterSpacing: 1.0,
+                                ),
                           ),
                         ],
                       ),
                     ),
                   ),
                 ),
-                // Window control buttons
-                _WindowButton(
-                  icon: Icons.minimize,
+                // Window control buttons (ASCII labels)
+                _AsciiWindowButton(
+                  label: '__',
+                  semanticLabel: 'Minimize',
                   onPressed: () => windowManager.minimize(),
                 ),
-                _WindowButton(
-                  icon: Icons.crop_square,
+                _AsciiWindowButton(
+                  label: '[ ]',
+                  semanticLabel: 'Maximize',
                   onPressed: () async {
                     bool isMaximized = await windowManager.isMaximized();
                     if (isMaximized) {
@@ -188,10 +192,11 @@ class _MainLayoutState extends State<MainLayout> with WindowListener {
                     }
                   },
                 ),
-                _WindowButton(
-                  icon: Icons.close,
-                  onPressed: () => windowManager.close(),
+                _AsciiWindowButton(
+                  label: 'x',
+                  semanticLabel: 'Close',
                   isClose: true,
+                  onPressed: () => windowManager.close(),
                 ),
               ],
             ),
@@ -237,9 +242,19 @@ class _MainLayoutState extends State<MainLayout> with WindowListener {
                 ),
                 const VerticalDivider(thickness: 1, width: 1),
                 
-                // Main content area
+                // Main content area wrapped in ASCII frame
                 Expanded(
-                  child: _screens[_selectedIndex],
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: AsciiFrame(
+                      title: _selectedIndex == 0
+                          ? 'ACTIVE DOWNLOADS'
+                          : _selectedIndex == 1
+                              ? 'COMPLETED DOWNLOADS'
+                              : 'SETTINGS',
+                      child: _screens[_selectedIndex],
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -250,26 +265,29 @@ class _MainLayoutState extends State<MainLayout> with WindowListener {
   }
 }
 
-class _WindowButton extends StatefulWidget {
-  final IconData icon;
+class _AsciiWindowButton extends StatefulWidget {
+  final String label;
+  final String semanticLabel;
   final VoidCallback onPressed;
   final bool isClose;
 
-  const _WindowButton({
-    required this.icon,
+  const _AsciiWindowButton({
+    required this.label,
+    required this.semanticLabel,
     required this.onPressed,
     this.isClose = false,
   });
 
   @override
-  State<_WindowButton> createState() => _WindowButtonState();
+  State<_AsciiWindowButton> createState() => _AsciiWindowButtonState();
 }
 
-class _WindowButtonState extends State<_WindowButton> {
+class _AsciiWindowButtonState extends State<_AsciiWindowButton> {
   bool _isHovered = false;
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
@@ -278,19 +296,22 @@ class _WindowButtonState extends State<_WindowButton> {
         child: Container(
           width: 46,
           height: 40,
+          alignment: Alignment.center,
           decoration: BoxDecoration(
             color: _isHovered
-                ? (widget.isClose
-                    ? Colors.red
-                    : Theme.of(context).colorScheme.surfaceContainerHighest)
+                ? (widget.isClose ? Colors.red : scheme.surfaceContainerHighest)
                 : Colors.transparent,
+            border: Border(
+              left: BorderSide(color: scheme.outlineVariant, width: 1),
+            ),
           ),
-          child: Icon(
-            widget.icon,
-            size: 16,
-            color: _isHovered && widget.isClose
-                ? Colors.white
-                : Theme.of(context).colorScheme.onSurface,
+          child: Text(
+            widget.label,
+            semanticsLabel: widget.semanticLabel,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontFamily: 'monospace',
+                  color: _isHovered && widget.isClose ? Colors.white : scheme.onSurface,
+                ),
           ),
         ),
       ),
