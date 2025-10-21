@@ -166,6 +166,7 @@ class DownloadManager {
 
       return _addDownloadRequest(DownloadRequest(url, downloadFilename));
     }
+    return null;
   }
 
   Future<DownloadTask> _addDownloadRequest(
