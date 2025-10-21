@@ -193,17 +193,19 @@ class DownloadItemCard extends StatelessWidget {
                         icon: const Icon(Icons.play_arrow),
                         tooltip: 'Resume',
                       ),
-                      const SizedBox(width: 8),
                     ],
                     if ((status == DownloadStatus.downloading ||
                             status == DownloadStatus.paused ||
                             status == DownloadStatus.queued) &&
                         onCancel != null)
+                      const SizedBox(width: 8),
+
                       IconButton.filledTonal(
                         onPressed: onCancel,
                         icon: const Icon(Icons.close),
                         tooltip: 'Cancel',
                       ),
+
                     if ((status == DownloadStatus.failed ||
                             status == DownloadStatus.canceled) &&
                         onRemove != null) ...[
