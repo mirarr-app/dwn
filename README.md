@@ -1,6 +1,6 @@
 # DWN - Download Manager
 
-A modern, Material 3 design download manager for Linux desktop built with Flutter.
+A Simple Linux download manager that looks good. With Omarchy theme support!
 
 ## Features
 
@@ -13,23 +13,17 @@ A modern, Material 3 design download manager for Linux desktop built with Flutte
 - **Download History**: Track completed downloads with timestamps and file sizes
 
 ### User Interface
-- **Material 3 Design**: Modern, adaptive color schemes with light/dark mode support
+- **Design**: Modern, adaptive color schemes with light/dark mode support
 - **Desktop-Optimized**: NavigationRail layout optimized for desktop use
-- **Three Main Screens**:
-  - **Active Downloads**: View and manage ongoing, paused, and queued downloads
-  - **Completed Downloads**: Browse download history with quick access to files
-  - **Settings**: Customize download directory, concurrent downloads, and theme
 
 ### Additional Features
 - **Default Download Location**: ~/Downloads/dwn (configurable)
-- **File Operations**: Open downloaded files or their containing folders
-- **Configurable Concurrency**: Set max concurrent downloads (1-10)
 - **Theme Support**: Light, dark, and system theme modes
-- **History Management**: Clear download history (files remain intact)
+
 
 ## Installation
 
-### Prerequisites
+### Building Prerequisites
 - Flutter SDK (3.9.2 or higher)
 - Linux desktop environment
 
@@ -69,11 +63,6 @@ A modern, Material 3 design download manager for Linux desktop built with Flutte
 4. Click launch icon to open the file
 5. Remove individual items from history as needed
 
-### Customizing Settings
-- **Theme**: Switch between light, dark, or system theme
-- **Download Directory**: Choose custom location for downloads
-- **Max Concurrent Downloads**: Adjust simultaneous download limit (1-10)
-- **Clear History**: Remove all completed download records
 
 ## Project Structure
 
@@ -81,7 +70,7 @@ A modern, Material 3 design download manager for Linux desktop built with Flutte
 lib/
 ├── main.dart                          # App entry point and main layout
 ├── theme/
-│   └── app_theme.dart                 # Material 3 theme configuration
+│   └── app_theme.dart                 # Theme configuration
 ├── screens/
 │   ├── active_downloads_screen.dart   # Active downloads view
 │   ├── completed_downloads_screen.dart # Download history view
@@ -94,10 +83,11 @@ lib/
 │   └── settings_provider.dart         # Settings state management
 └── services/
     └── download_manager/              # Core download logic
-        ├── download_request.dart      # Download request model
-        ├── download_status.dart       # Download status enum
-        ├── download_task.dart         # Download task model
-        └── downloader.dart            # Download manager singleton
+    |   ├── download_request.dart      # Download request model
+    |   ├── download_status.dart       # Download status enum
+    |   ├── download_task.dart         # Download task model
+    |   └── downloader.dart            # Download manager singleton
+    └── theme_service.dart             # Check Omarchy Theme
 ```
 
 ## Technologies
@@ -105,15 +95,13 @@ lib/
 - **Flutter**: Cross-platform UI framework
 - **Dio**: HTTP client for downloads with progress tracking
 - **Provider**: State management
-- **Material 3**: Modern design system
 - **SharedPreferences**: Settings persistence
 - **path_provider**: System directory access
-- **file_picker**: Directory selection
+- **file_selector**: Directory selection
 - **url_launcher**: File/folder opening
 
 ## License
 
-This project is open source and available under the MIT License.
 
 ## Contributing
 
