@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:file_selector/file_selector.dart';
 import '../providers/settings_provider.dart';
 import '../providers/download_provider.dart';
 
@@ -10,8 +10,8 @@ class SettingsScreen extends StatelessWidget {
   Future<void> _selectDownloadDirectory(BuildContext context) async {
     final settingsProvider = context.read<SettingsProvider>();
     
-    final result = await FilePicker.platform.getDirectoryPath(
-      dialogTitle: 'Select Download Directory',
+    final result = await getDirectoryPath(
+      confirmButtonText: 'Select',
       initialDirectory: settingsProvider.downloadDirectory,
     );
 
