@@ -165,7 +165,7 @@ class _MainLayoutState extends State<MainLayout> with WindowListener {
                           Text(
                             '[ DWN ]',
                             style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                  fontFamily: 'monospace',
+                                  fontFamily: 'JetBrainsMono',
                                   letterSpacing: 1.0,
                                 ),
                           ),
@@ -309,7 +309,7 @@ class _AsciiWindowButtonState extends State<_AsciiWindowButton> {
             widget.label,
             semanticsLabel: widget.semanticLabel,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontFamily: 'monospace',
+                  fontFamily: 'JetBrainsMono',
                   color: _isHovered && widget.isClose ? Colors.white : scheme.onSurface,
                 ),
           ),

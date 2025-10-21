@@ -60,7 +60,7 @@ class AsciiFrame extends StatelessWidget {
               child: Text(
                 '[ ${title!} ]',
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      fontFamily: 'monospace',
+                      fontFamily: 'JetBrainsMono',
                       color: scheme.onSurface,
                     ),
               ),
@@ -75,7 +75,7 @@ class AsciiFrame extends StatelessWidget {
     return Text(
       glyph,
       style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            fontFamily: 'monospace',
+            fontFamily: 'JetBrainsMono',
             color: scheme.onSurfaceVariant,
           ),
     );
