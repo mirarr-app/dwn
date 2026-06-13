@@ -36,7 +36,7 @@ class DownloadManager {
     return _dm;
   }
 
-  Future<void> download(String url, String savePath, cancelToken,
+  Future<void> download(String url, String savePath,
       {forceDownload = false}) async {
     Process? process;
     try {
@@ -423,8 +423,7 @@ class DownloadManager {
       }
       var currentRequest = _queue.removeFirst();
 
-      download(
-          currentRequest.url, currentRequest.path, currentRequest.cancelToken);
+      download(currentRequest.url, currentRequest.path);
 
       await Future.delayed(Duration(milliseconds: 500), null);
     }
