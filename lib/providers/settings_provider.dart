@@ -7,14 +7,26 @@ class SettingsProvider with ChangeNotifier {
   static const String _themeKey = 'theme_mode';
   static const String _downloadDirKey = 'download_directory';
   static const String _maxConcurrentKey = 'max_concurrent_downloads';
+  static const String _aria2MaxConnectionsKey = 'aria2_max_connections';
+  static const String _aria2SplitKey = 'aria2_split';
+  static const String _aria2MinSplitSizeKey = 'aria2_min_split_size';
+  static const String _aria2FileAllocationKey = 'aria2_file_allocation';
 
   ThemeMode _themeMode = ThemeMode.system;
   String _downloadDirectory = '';
   int _maxConcurrentDownloads = 2;
+  int _aria2MaxConnections = 16;
+  int _aria2Split = 16;
+  String _aria2MinSplitSize = '1M';
+  String _aria2FileAllocation = 'falloc';
 
   ThemeMode get themeMode => _themeMode;
   String get downloadDirectory => _downloadDirectory;
   int get maxConcurrentDownloads => _maxConcurrentDownloads;
+  int get aria2MaxConnections => _aria2MaxConnections;
+  int get aria2Split => _aria2Split;
+  String get aria2MinSplitSize => _aria2MinSplitSize;
+  String get aria2FileAllocation => _aria2FileAllocation;
 
   SettingsProvider() {
     _loadSettings();
@@ -38,6 +50,12 @@ class SettingsProvider with ChangeNotifier {
 
     // Load max concurrent downloads
     _maxConcurrentDownloads = prefs.getInt(_maxConcurrentKey) ?? 2;
+
+    // Load aria2c settings
+    _aria2MaxConnections = prefs.getInt(_aria2MaxConnectionsKey) ?? 16;
+    _aria2Split = prefs.getInt(_aria2SplitKey) ?? 16;
+    _aria2MinSplitSize = prefs.getString(_aria2MinSplitSizeKey) ?? '1M';
+    _aria2FileAllocation = prefs.getString(_aria2FileAllocationKey) ?? 'falloc';
 
     // Create download directory if it doesn't exist
     await _ensureDownloadDirectoryExists();
@@ -87,6 +105,34 @@ class SettingsProvider with ChangeNotifier {
   Future<void> clearHistory() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('download_history');
+    notifyListeners();
+  }
+
+  Future<void> setAria2MaxConnections(int count) async {
+    _aria2MaxConnections = count;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_aria2MaxConnectionsKey, count);
+    notifyListeners();
+  }
+
+  Future<void> setAria2Split(int count) async {
+    _aria2Split = count;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_aria2SplitKey, count);
+    notifyListeners();
+  }
+
+  Future<void> setAria2MinSplitSize(String size) async {
+    _aria2MinSplitSize = size;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_aria2MinSplitSizeKey, size);
+    notifyListeners();
+  }
+
+  Future<void> setAria2FileAllocation(String method) async {
+    _aria2FileAllocation = method;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_aria2FileAllocationKey, method);
     notifyListeners();
   }
 }
