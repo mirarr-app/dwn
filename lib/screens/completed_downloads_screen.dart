@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../providers/download_provider.dart';
+import '../services/download_manager/download_status.dart';
+import '../widgets/ascii_status_spinner.dart';
 
 class CompletedDownloadsScreen extends StatelessWidget {
   const CompletedDownloadsScreen({super.key});
@@ -170,12 +172,13 @@ class CompletedDownloadsScreen extends StatelessWidget {
               final item = history[index];
               return Card(
                 child: ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                    child: Icon(
-                      Icons.check,
-                      color: Theme.of(context).colorScheme.onPrimaryContainer,
-                    ),
+                  leading: const Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      AsciiStatusSpinner(
+                        status: DownloadStatus.completed,
+                      ),
+                    ],
                   ),
                   title: Text(
                     item.filename,

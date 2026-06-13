@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import '../services/download_manager/download_task.dart';
 import '../services/download_manager/download_status.dart';
+import 'ascii_progress_bar.dart';
+import 'ascii_status_spinner.dart';
 
 class DownloadItemCard extends StatelessWidget {
   final DownloadTask task;
@@ -23,56 +25,6 @@ class DownloadItemCard extends StatelessWidget {
     return path.split(Platform.pathSeparator).last;
   }
 
-  Color _getStatusColor(DownloadStatus status, ColorScheme colorScheme) {
-    switch (status) {
-      case DownloadStatus.completed:
-        return colorScheme.primary;
-      case DownloadStatus.downloading:
-        return colorScheme.tertiary;
-      case DownloadStatus.paused:
-        return colorScheme.secondary;
-      case DownloadStatus.failed:
-        return colorScheme.error;
-      case DownloadStatus.canceled:
-        return colorScheme.outline;
-      case DownloadStatus.queued:
-        return colorScheme.surfaceContainerHighest;
-    }
-  }
-
-  IconData _getStatusIcon(DownloadStatus status) {
-    switch (status) {
-      case DownloadStatus.completed:
-        return Icons.check_circle;
-      case DownloadStatus.downloading:
-        return Icons.downloading;
-      case DownloadStatus.paused:
-        return Icons.pause_circle;
-      case DownloadStatus.failed:
-        return Icons.error;
-      case DownloadStatus.canceled:
-        return Icons.cancel;
-      case DownloadStatus.queued:
-        return Icons.schedule;
-    }
-  }
-
-  String _getStatusText(DownloadStatus status) {
-    switch (status) {
-      case DownloadStatus.completed:
-        return 'Completed';
-      case DownloadStatus.downloading:
-        return 'Downloading';
-      case DownloadStatus.paused:
-        return 'Paused';
-      case DownloadStatus.failed:
-        return 'Failed';
-      case DownloadStatus.canceled:
-        return 'Canceled';
-      case DownloadStatus.queued:
-        return 'Queued';
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -102,14 +54,9 @@ class DownloadItemCard extends StatelessWidget {
                 ValueListenableBuilder(
                   valueListenable: task.status,
                   builder: (context, status, child) {
-                    return Chip(
-                      avatar: Icon(
-                        _getStatusIcon(status),
-                        size: 18,
-                        color: _getStatusColor(status, colorScheme),
-                      ),
-                      label: Text(_getStatusText(status)),
-                      visualDensity: VisualDensity.compact,
+                    return AsciiStatusSpinner(
+                      status: status,
+                      speedNotifier: task.speed,
                     );
                   },
                 ),
@@ -142,10 +89,10 @@ class DownloadItemCard extends StatelessWidget {
                         builder: (context, progress, child) {
                           return Column(
                             children: [
-                              LinearProgressIndicator(
-                                value: progress,
-                                minHeight: 8,
-                                borderRadius: BorderRadius.circular(4),
+                              AsciiProgressBar(
+                                progressNotifier: task.progress,
+                                speedNotifier: task.speed,
+                                status: status,
                               ),
                               const SizedBox(height: 4),
                               Row(
