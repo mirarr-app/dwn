@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'ascii_button.dart';
 
 class AddDownloadDialog extends StatefulWidget {
   const AddDownloadDialog({super.key});
@@ -151,13 +152,15 @@ class _AddDownloadDialogState extends State<AddDownloadDialog> {
         ),
       ),
       actions: [
-        TextButton(
+        AsciiButton(
+          label: 'CANCEL',
+          color: Theme.of(context).colorScheme.outline,
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
         ),
-        FilledButton(
+        AsciiButton(
+          label: _isBatchMode ? 'ADD ALL' : 'ADD',
+          color: Theme.of(context).colorScheme.primary,
           onPressed: _submit,
-          child: Text(_isBatchMode ? 'Add All' : 'Add'),
         ),
       ],
     );

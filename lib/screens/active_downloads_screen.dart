@@ -4,6 +4,7 @@ import '../providers/download_provider.dart';
 import '../providers/settings_provider.dart';
 import '../widgets/add_download_dialog.dart';
 import '../widgets/download_item_card.dart';
+import '../widgets/ascii_button.dart';
 
 class ActiveDownloadsScreen extends StatelessWidget {
   const ActiveDownloadsScreen({super.key});
@@ -59,10 +60,15 @@ class ActiveDownloadsScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Active Downloads'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            tooltip: 'Add Download',
-            onPressed: () => _showAddDownloadDialog(context),
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: Center(
+              child: AsciiButton(
+                label: '+ ADD',
+                compact: true,
+                onPressed: () => _showAddDownloadDialog(context),
+              ),
+            ),
           ),
         ],
       ),
@@ -115,10 +121,9 @@ class ActiveDownloadsScreen extends StatelessWidget {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: AsciiButton(
+        label: '[ + ] ADD DOWNLOAD',
         onPressed: () => _showAddDownloadDialog(context),
-        icon: const Icon(Icons.add),
-        label: const Text('Add Download'),
       ),
     );
   }

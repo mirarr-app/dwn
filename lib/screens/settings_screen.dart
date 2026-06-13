@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:file_selector/file_selector.dart';
 import '../providers/settings_provider.dart';
 import '../providers/download_provider.dart';
+import '../widgets/ascii_button.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -99,10 +100,10 @@ class SettingsScreen extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                trailing: FilledButton.icon(
+                trailing: AsciiButton(
+                  label: 'CHANGE',
+                  compact: true,
                   onPressed: () => _selectDownloadDirectory(context),
-                  icon: const Icon(Icons.edit),
-                  label: const Text('Change'),
                 ),
               );
             },
@@ -118,8 +119,9 @@ class SettingsScreen extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      IconButton(
-                        icon: const Icon(Icons.remove),
+                      AsciiButton(
+                        label: '-',
+                        compact: true,
                         onPressed: settingsProvider.maxConcurrentDownloads > 1
                             ? () {
                                 final newValue =
@@ -131,12 +133,17 @@ class SettingsScreen extends StatelessWidget {
                               }
                             : null,
                       ),
+                      const SizedBox(width: 12),
                       Text(
                         '${settingsProvider.maxConcurrentDownloads}',
-                        style: Theme.of(context).textTheme.titleMedium,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontFamily: 'JetBrainsMono',
+                            ),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.add),
+                      const SizedBox(width: 12),
+                      AsciiButton(
+                        label: '+',
+                        compact: true,
                         onPressed: settingsProvider.maxConcurrentDownloads < 10
                             ? () {
                                 final newValue =
@@ -178,8 +185,9 @@ class SettingsScreen extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      IconButton(
-                        icon: const Icon(Icons.remove),
+                      AsciiButton(
+                        label: '-',
+                        compact: true,
                         onPressed: settingsProvider.aria2MaxConnections > 1
                             ? () {
                                 settingsProvider.setAria2MaxConnections(
@@ -187,12 +195,17 @@ class SettingsScreen extends StatelessWidget {
                               }
                             : null,
                       ),
+                      const SizedBox(width: 12),
                       Text(
                         '${settingsProvider.aria2MaxConnections}',
-                        style: Theme.of(context).textTheme.titleMedium,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontFamily: 'JetBrainsMono',
+                            ),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.add),
+                      const SizedBox(width: 12),
+                      AsciiButton(
+                        label: '+',
+                        compact: true,
                         onPressed: settingsProvider.aria2MaxConnections < 16
                             ? () {
                                 settingsProvider.setAria2MaxConnections(
@@ -217,8 +230,9 @@ class SettingsScreen extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      IconButton(
-                        icon: const Icon(Icons.remove),
+                      AsciiButton(
+                        label: '-',
+                        compact: true,
                         onPressed: settingsProvider.aria2Split > 1
                             ? () {
                                 settingsProvider.setAria2Split(
@@ -226,12 +240,17 @@ class SettingsScreen extends StatelessWidget {
                               }
                             : null,
                       ),
+                      const SizedBox(width: 12),
                       Text(
                         '${settingsProvider.aria2Split}',
-                        style: Theme.of(context).textTheme.titleMedium,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontFamily: 'JetBrainsMono',
+                            ),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.add),
+                      const SizedBox(width: 12),
+                      AsciiButton(
+                        label: '+',
+                        compact: true,
                         onPressed: settingsProvider.aria2Split < 16
                             ? () {
                                 settingsProvider.setAria2Split(
@@ -320,13 +339,15 @@ class SettingsScreen extends StatelessWidget {
                     'Are you sure you want to clear the download history? This will not delete the downloaded files.',
                   ),
                   actions: [
-                    TextButton(
+                    AsciiButton(
+                      label: 'CANCEL',
+                      color: Theme.of(context).colorScheme.outline,
                       onPressed: () => Navigator.of(context).pop(false),
-                      child: const Text('Cancel'),
                     ),
-                    FilledButton(
+                    AsciiButton(
+                      label: 'CLEAR',
+                      color: Theme.of(context).colorScheme.error,
                       onPressed: () => Navigator.of(context).pop(true),
-                      child: const Text('Clear'),
                     ),
                   ],
                 ),

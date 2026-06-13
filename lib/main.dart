@@ -11,6 +11,7 @@ import 'theme/app_theme.dart';
 import 'services/theme_sevice.dart';
 import 'widgets/ascii_frame.dart';
 import 'widgets/add_download_dialog.dart';
+import 'widgets/ascii_button.dart';
 import 'services/download_manager/download_status.dart';
 import 'package:flutter/services.dart';
 
@@ -214,14 +215,10 @@ class _MainLayoutState extends State<MainLayout> with WindowListener {
                     const SizedBox(height: 12),
                     Align(
                       alignment: Alignment.centerRight,
-                      child: OutlinedButton(
+                      child: AsciiButton(
+                        label: 'CLOSE',
+                        color: Theme.of(context).colorScheme.primary,
                         onPressed: () => Navigator.of(context).pop(),
-                        child: Text(
-                          '[ Close ]',
-                          style: textTheme.labelLarge?.copyWith(
-                            fontFamily: 'JetBrainsMono',
-                          ),
-                        ),
                       ),
                     ),
                   ],
@@ -321,13 +318,15 @@ class _MainLayoutState extends State<MainLayout> with WindowListener {
           'Are you sure you want to clear the download history? This will not delete the downloaded files.',
         ),
         actions: [
-          TextButton(
+          AsciiButton(
+            label: 'CANCEL',
+            color: Theme.of(context).colorScheme.outline,
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
           ),
-          FilledButton(
+          AsciiButton(
+            label: 'CLEAR',
+            color: Theme.of(context).colorScheme.error,
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Clear'),
           ),
         ],
       ),

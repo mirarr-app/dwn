@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../providers/download_provider.dart';
 import '../services/download_manager/download_status.dart';
 import '../widgets/ascii_status_spinner.dart';
+import '../widgets/ascii_button.dart';
 
 class CompletedDownloadsScreen extends StatelessWidget {
   const CompletedDownloadsScreen({super.key});
@@ -94,10 +95,14 @@ class CompletedDownloadsScreen extends StatelessWidget {
               if (downloadProvider.history.isEmpty) {
                 return const SizedBox.shrink();
               }
-              return IconButton(
-                icon: const Icon(Icons.delete_sweep),
-                tooltip: 'Clear History',
-                onPressed: () async {
+              return Padding(
+                padding: const EdgeInsets.only(right: 16.0),
+                child: Center(
+                  child: AsciiButton(
+                    label: 'CLEAR HISTORY',
+                    compact: true,
+                    color: Theme.of(context).colorScheme.error,
+                    onPressed: () async {
                   final confirm = await showDialog<bool>(
                     context: context,
                     builder: (context) => AlertDialog(
@@ -106,13 +111,15 @@ class CompletedDownloadsScreen extends StatelessWidget {
                         'Are you sure you want to clear the download history? This will not delete the downloaded files.',
                       ),
                       actions: [
-                        TextButton(
+                        AsciiButton(
+                          label: 'CANCEL',
+                          color: Theme.of(context).colorScheme.outline,
                           onPressed: () => Navigator.of(context).pop(false),
-                          child: const Text('Cancel'),
                         ),
-                        FilledButton(
+                        AsciiButton(
+                          label: 'CLEAR',
+                          color: Theme.of(context).colorScheme.error,
                           onPressed: () => Navigator.of(context).pop(true),
-                          child: const Text('Clear'),
                         ),
                       ],
                     ),
@@ -127,8 +134,10 @@ class CompletedDownloadsScreen extends StatelessWidget {
                     }
                   }
                 },
-              );
-            },
+              ),
+            ),
+          );
+        },
           ),
         ],
       ),
@@ -219,19 +228,24 @@ class CompletedDownloadsScreen extends StatelessWidget {
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      IconButton(
-                        icon: const Icon(Icons.folder_open),
-                        tooltip: 'Open Folder',
+                      AsciiButton(
+                        label: 'DIR',
+                        compact: true,
+                        color: Theme.of(context).colorScheme.secondary,
                         onPressed: () => _openFolder(context, item.path),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.launch),
-                        tooltip: 'Open File',
+                      const SizedBox(width: 8),
+                      AsciiButton(
+                        label: 'OPEN',
+                        compact: true,
+                        color: Theme.of(context).colorScheme.primary,
                         onPressed: () => _openFile(context, item.path),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.delete_outline),
-                        tooltip: 'Remove from History',
+                      const SizedBox(width: 8),
+                      AsciiButton(
+                        label: 'DEL',
+                        compact: true,
+                        color: Theme.of(context).colorScheme.error,
                         onPressed: () async {
                           await downloadProvider.removeFromHistory(item.url);
                           if (context.mounted) {

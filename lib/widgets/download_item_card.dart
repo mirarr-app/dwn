@@ -4,6 +4,7 @@ import '../services/download_manager/download_task.dart';
 import '../services/download_manager/download_status.dart';
 import 'ascii_progress_bar.dart';
 import 'ascii_status_spinner.dart';
+import 'ascii_button.dart';
 
 class DownloadItemCard extends StatelessWidget {
   final DownloadTask task;
@@ -135,7 +136,7 @@ class DownloadItemCard extends StatelessWidget {
               },
             ),
 
-            // Action buttons
+             // Action buttons
             ValueListenableBuilder(
               valueListenable: task.status,
               builder: (context, status, child) {
@@ -143,38 +144,37 @@ class DownloadItemCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     if (status == DownloadStatus.downloading && onPause != null)
-                      IconButton.filledTonal(
+                      AsciiButton(
+                        label: 'PAUSE',
+                        color: colorScheme.secondary,
                         onPressed: onPause,
-                        icon: const Icon(Icons.pause),
-                        tooltip: 'Pause',
                       ),
                     if (status == DownloadStatus.paused && onResume != null) ...[
-                      IconButton.filledTonal(
+                      AsciiButton(
+                        label: 'RESUME',
+                        color: colorScheme.primary,
                         onPressed: onResume,
-                        icon: const Icon(Icons.play_arrow),
-                        tooltip: 'Resume',
                       ),
                     ],
                     if ((status == DownloadStatus.downloading ||
                             status == DownloadStatus.paused ||
                             status == DownloadStatus.queued) &&
-                        onCancel != null)
+                        onCancel != null) ...[
                       const SizedBox(width: 8),
-
-                      IconButton.filledTonal(
+                      AsciiButton(
+                        label: 'CANCEL',
+                        color: colorScheme.outline,
                         onPressed: onCancel,
-                        icon: const Icon(Icons.close),
-                        tooltip: 'Cancel',
                       ),
-
+                    ],
                     if ((status == DownloadStatus.failed ||
                             status == DownloadStatus.canceled) &&
                         onRemove != null) ...[
                       const SizedBox(width: 8),
-                      IconButton.filledTonal(
+                      AsciiButton(
+                        label: 'REMOVE',
+                        color: colorScheme.error,
                         onPressed: onRemove,
-                        icon: const Icon(Icons.delete),
-                        tooltip: 'Remove',
                       ),
                     ],
                   ],
