@@ -119,6 +119,7 @@ class DownloadManager {
       _runningProcesses.remove(url);
 
       if (exitCode == 0) {
+        task.progress.value = 1.0;
         setStatus(task, DownloadStatus.completed);
       } else {
         if (task.status.value == DownloadStatus.downloading) {
@@ -134,6 +135,10 @@ class DownloadManager {
       }
     } finally {
       _runningProcesses.remove(url);
+      runningTasks--;
+      if (_queue.isNotEmpty) {
+        _startExecution();
+      }
     }
   }
 
