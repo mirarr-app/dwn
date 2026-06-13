@@ -8,6 +8,8 @@ class DownloadTask {
   final DownloadRequest request;
   ValueNotifier<DownloadStatus> status = ValueNotifier(DownloadStatus.queued);
   ValueNotifier<double> progress = ValueNotifier(0);
+  ValueNotifier<String> speed = ValueNotifier('');
+  ValueNotifier<String> eta = ValueNotifier('');
 
   DownloadTask(
     this.request,
