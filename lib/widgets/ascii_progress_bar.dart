@@ -145,7 +145,7 @@ class _AsciiProgressBarState extends State<AsciiProgressBar>
 
             for (int i = 0; i < segmentsCount; i++) {
               String char = '░';
-              Color charColor = colorScheme.outlineVariant.withOpacity(0.3);
+              Color charColor = colorScheme.onSurface.withOpacity(0.15);
 
               if (i < filledSegments) {
                 char = '█';
@@ -176,11 +176,11 @@ class _AsciiProgressBarState extends State<AsciiProgressBar>
                   charColor = baseColor;
                 } else {
                   char = '░';
-                  charColor = colorScheme.outlineVariant.withOpacity(0.3);
+                  charColor = colorScheme.onSurface.withOpacity(0.15);
                 }
               } else {
                 char = '░';
-                charColor = colorScheme.outlineVariant.withOpacity(0.3);
+                charColor = colorScheme.onSurface.withOpacity(0.15);
               }
 
               spans.add(TextSpan(

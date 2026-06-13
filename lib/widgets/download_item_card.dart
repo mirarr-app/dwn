@@ -82,51 +82,53 @@ class DownloadItemCard extends StatelessWidget {
                 if (status == DownloadStatus.downloading ||
                     status == DownloadStatus.paused ||
                     status == DownloadStatus.queued) {
-                  return Column(
-                    children: [
-                      ValueListenableBuilder(
-                        valueListenable: task.progress,
-                        builder: (context, progress, child) {
-                          return Column(
+                  return ValueListenableBuilder(
+                    valueListenable: task.progress,
+                    builder: (context, progress, child) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          AsciiProgressBar(
+                            progressNotifier: task.progress,
+                            speedNotifier: task.speed,
+                            status: status,
+                          ),
+                          const SizedBox(height: 6),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              AsciiProgressBar(
-                                progressNotifier: task.progress,
-                                speedNotifier: task.speed,
-                                status: status,
+                              Text(
+                                '${(progress * 100).toStringAsFixed(1)}%',
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      fontFamily: 'JetBrainsMono',
+                                      fontWeight: FontWeight.bold,
+                                    ),
                               ),
-                              const SizedBox(height: 4),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    '${(progress * 100).toStringAsFixed(1)}%',
-                                    style: Theme.of(context).textTheme.bodySmall,
-                                  ),
-                                  if (status == DownloadStatus.downloading)
-                                    ValueListenableBuilder<String>(
-                                      valueListenable: task.speed,
-                                      builder: (context, speed, child) {
-                                        return ValueListenableBuilder<String>(
-                                          valueListenable: task.eta,
-                                          builder: (context, eta, child) {
-                                            final speedText = speed.isNotEmpty ? ' ($speed)' : '';
-                                            final etaText = eta.isNotEmpty ? ' • ETA: $eta' : '';
-                                            return Text(
-                                              'Downloading$speedText$etaText',
-                                              style: Theme.of(context).textTheme.bodySmall,
-                                            );
-                                          },
+                              if (status == DownloadStatus.downloading)
+                                ValueListenableBuilder<String>(
+                                  valueListenable: task.speed,
+                                  builder: (context, speed, child) {
+                                    return ValueListenableBuilder<String>(
+                                      valueListenable: task.eta,
+                                      builder: (context, eta, child) {
+                                        final speedText = speed.isNotEmpty ? ' ($speed)' : '';
+                                        final etaText = eta.isNotEmpty ? ' • ETA: $eta' : '';
+                                        return Text(
+                                          'Downloading$speedText$etaText',
+                                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                                fontFamily: 'JetBrainsMono',
+                                              ),
                                         );
                                       },
-                                    ),
-                                ],
-                              ),
+                                    );
+                                  },
+                                ),
                             ],
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 12),
-                    ],
+                          ),
+                          const SizedBox(height: 12),
+                        ],
+                      );
+                    },
                   );
                 }
                 return const SizedBox.shrink();
