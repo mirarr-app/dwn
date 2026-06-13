@@ -359,7 +359,7 @@ class SettingsScreen extends StatelessWidget {
           const ListTile(
             leading: Icon(Icons.info_outline),
             title: Text('DWN Download Manager'),
-            subtitle: Text('Version 0.1.0\nA Linux desktop download manager'),
+            subtitle: Text('Version 1.0.0\nA Linux desktop download manager'),
             isThreeLine: true,
           ),
         ],
