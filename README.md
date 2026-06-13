@@ -1,6 +1,6 @@
 # DWN - Download Manager
 
-A Simple Linux download manager that looks good. With Omarchy theme support!
+A Simple Linux download manager that looks good, powered by the fast and lightweight `aria2c` download engine. With Omarchy theme support!
 
 ## Features
 
@@ -23,7 +23,8 @@ A Simple Linux download manager that looks good. With Omarchy theme support!
 
 ## Installation
 
-### Building Prerequisites
+### Prerequisites
+- `aria2c` installed on the system
 - Flutter SDK (3.9.2 or higher)
 - Linux desktop environment
 
@@ -93,7 +94,7 @@ lib/
 ## Technologies
 
 - **Flutter**: Cross-platform UI framework
-- **Dio**: HTTP client for downloads with progress tracking
+- **aria2c**: Fast and lightweight command-line download utility used as the core engine
 - **Provider**: State management
 - **SharedPreferences**: Settings persistence
 - **path_provider**: System directory access
