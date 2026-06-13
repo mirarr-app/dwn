@@ -156,6 +156,143 @@ class SettingsScreen extends StatelessWidget {
           ),
           const Divider(),
 
+          // aria2c Engine Settings Section
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              'aria2c Engine Settings',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+          ),
+          Consumer<SettingsProvider>(
+            builder: (context, settingsProvider, child) {
+              return ListTile(
+                leading: const Icon(Icons.hub_outlined),
+                title: const Text('Max Connection Per Server (-x)'),
+                subtitle: const Text('Max connections to a single server'),
+                trailing: SizedBox(
+                  width: 200,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.remove),
+                        onPressed: settingsProvider.aria2MaxConnections > 1
+                            ? () {
+                                settingsProvider.setAria2MaxConnections(
+                                    settingsProvider.aria2MaxConnections - 1);
+                              }
+                            : null,
+                      ),
+                      Text(
+                        '${settingsProvider.aria2MaxConnections}',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.add),
+                        onPressed: settingsProvider.aria2MaxConnections < 16
+                            ? () {
+                                settingsProvider.setAria2MaxConnections(
+                                    settingsProvider.aria2MaxConnections + 1);
+                              }
+                            : null,
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+          Consumer<SettingsProvider>(
+            builder: (context, settingsProvider, child) {
+              return ListTile(
+                leading: const Icon(Icons.call_split_outlined),
+                title: const Text('Split Connections (-s)'),
+                subtitle: const Text('Download using N connections'),
+                trailing: SizedBox(
+                  width: 200,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.remove),
+                        onPressed: settingsProvider.aria2Split > 1
+                            ? () {
+                                settingsProvider.setAria2Split(
+                                    settingsProvider.aria2Split - 1);
+                              }
+                            : null,
+                      ),
+                      Text(
+                        '${settingsProvider.aria2Split}',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.add),
+                        onPressed: settingsProvider.aria2Split < 16
+                            ? () {
+                                settingsProvider.setAria2Split(
+                                    settingsProvider.aria2Split + 1);
+                              }
+                            : null,
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+          Consumer<SettingsProvider>(
+            builder: (context, settingsProvider, child) {
+              return ListTile(
+                leading: const Icon(Icons.compress_outlined),
+                title: const Text('Minimum Split Size (-k)'),
+                subtitle: const Text('Do not split less than 2*size bytes'),
+                trailing: DropdownButton<String>(
+                  value: settingsProvider.aria2MinSplitSize,
+                  items: ['1M', '2M', '5M', '10M', '20M']
+                      .map((size) => DropdownMenuItem(
+                            value: size,
+                            child: Text(size),
+                          ))
+                      .toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      settingsProvider.setAria2MinSplitSize(value);
+                    }
+                  },
+                ),
+              );
+            },
+          ),
+          Consumer<SettingsProvider>(
+            builder: (context, settingsProvider, child) {
+              return ListTile(
+                leading: const Icon(Icons.storage_outlined),
+                title: const Text('File Allocation Method'),
+                subtitle: const Text('Method to pre-allocate file disk space'),
+                trailing: DropdownButton<String>(
+                  value: settingsProvider.aria2FileAllocation,
+                  items: ['none', 'prealloc', 'trunc', 'falloc']
+                      .map((method) => DropdownMenuItem(
+                            value: method,
+                            child: Text(method),
+                          ))
+                      .toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      settingsProvider.setAria2FileAllocation(value);
+                    }
+                  },
+                ),
+              );
+            },
+          ),
+          const Divider(),
+
           // Data Section
           Padding(
             padding: const EdgeInsets.all(16.0),
