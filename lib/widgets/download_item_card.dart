@@ -156,9 +156,21 @@ class DownloadItemCard extends StatelessWidget {
                                     style: Theme.of(context).textTheme.bodySmall,
                                   ),
                                   if (status == DownloadStatus.downloading)
-                                    Text(
-                                      'Downloading...',
-                                      style: Theme.of(context).textTheme.bodySmall,
+                                    ValueListenableBuilder<String>(
+                                      valueListenable: task.speed,
+                                      builder: (context, speed, child) {
+                                        return ValueListenableBuilder<String>(
+                                          valueListenable: task.eta,
+                                          builder: (context, eta, child) {
+                                            final speedText = speed.isNotEmpty ? ' ($speed)' : '';
+                                            final etaText = eta.isNotEmpty ? ' • ETA: $eta' : '';
+                                            return Text(
+                                              'Downloading$speedText$etaText',
+                                              style: Theme.of(context).textTheme.bodySmall,
+                                            );
+                                          },
+                                        );
+                                      },
                                     ),
                                 ],
                               ),
