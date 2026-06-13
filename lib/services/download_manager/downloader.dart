@@ -49,10 +49,12 @@ class DownloadManager {
 
       final file = File(savePath.toString());
       final fileExist = await file.exists();
+      final aria2File = File('${savePath.toString()}.aria2');
+      final aria2FileExist = await aria2File.exists();
 
-      if (fileExist) {
+      if (fileExist && !aria2FileExist) {
         if (kDebugMode) {
-          print("File Exists: $savePath");
+          print("File Exists and is complete: $savePath");
         }
         task.progress.value = 1.0;
         setStatus(task, DownloadStatus.completed);
@@ -116,14 +118,16 @@ class DownloadManager {
       }
 
       final exitCode = await process.exitCode;
-      _runningProcesses.remove(url);
 
-      if (exitCode == 0) {
-        task.progress.value = 1.0;
-        setStatus(task, DownloadStatus.completed);
-      } else {
-        if (task.status.value == DownloadStatus.downloading) {
-          setStatus(task, DownloadStatus.failed);
+      if (_runningProcesses[url] == process) {
+        _runningProcesses.remove(url);
+        if (exitCode == 0) {
+          task.progress.value = 1.0;
+          setStatus(task, DownloadStatus.completed);
+        } else {
+          if (task.status.value == DownloadStatus.downloading) {
+            setStatus(task, DownloadStatus.failed);
+          }
         }
       }
     } catch (e) {
@@ -134,7 +138,9 @@ class DownloadManager {
         rethrow;
       }
     } finally {
-      _runningProcesses.remove(url);
+      if (_runningProcesses[url] == process) {
+        _runningProcesses.remove(url);
+      }
       runningTasks--;
       if (_queue.isNotEmpty) {
         _startExecution();
