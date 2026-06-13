@@ -1,18 +1,19 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:convert';
 import 'dart:io';
 import 'package:collection/collection.dart';
 
-import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'download_request.dart';
 import 'download_status.dart';
 import 'download_task.dart';
 
 class DownloadManager {
   final Map<String, DownloadTask> _cache = <String, DownloadTask>{};
+  final Map<String, Process> _runningProcesses = {};
   final Queue<DownloadRequest> _queue = Queue();
-  var dio = Dio();
   static const partialExtension = ".partial";
   static const tempExtension = ".temp";
 
@@ -21,35 +22,23 @@ class DownloadManager {
   int maxConcurrentTasks = 2;
   int runningTasks = 0;
 
-  static final DownloadManager _dm = new DownloadManager._internal();
+  static final DownloadManager _dm = DownloadManager._internal();
 
   DownloadManager._internal();
 
   factory DownloadManager({
     int? maxConcurrentTasks,
-    Dio? dio,
   }) {
     if (maxConcurrentTasks != null) {
       _dm.maxConcurrentTasks = maxConcurrentTasks;
     }
 
-    _dm.dio = dio ?? Dio();
-
     return _dm;
   }
 
-  void Function(int, int) createCallback(url, int partialFileLength) =>
-      (int received, int total) {
-        getDownload(url)?.progress.value =
-            (received + partialFileLength) / (total + partialFileLength);
-
-        if (total == -1) {}
-      };
-
   Future<void> download(String url, String savePath, cancelToken,
       {forceDownload = false}) async {
-    late String partialFilePath;
-    late File partialFile;
+    Process? process;
     try {
       var task = getDownload(url);
 
@@ -58,55 +47,82 @@ class DownloadManager {
       }
       setStatus(task, DownloadStatus.downloading);
 
-      if (kDebugMode) {
-        print(url);
-      }
-      var file = File(savePath.toString());
-      partialFilePath = savePath + partialExtension;
-      partialFile = File(partialFilePath);
-
-      var fileExist = await file.exists();
-      var partialFileExist = await partialFile.exists();
+      final file = File(savePath.toString());
+      final fileExist = await file.exists();
 
       if (fileExist) {
         if (kDebugMode) {
-          print("File Exists");
+          print("File Exists: $savePath");
         }
+        task.progress.value = 1.0;
         setStatus(task, DownloadStatus.completed);
-      } else if (partialFileExist) {
-        if (kDebugMode) {
-          print("Partial File Exists");
+        return;
+      }
+
+      final directoryPath = file.parent.path;
+      final filename = file.path.split(Platform.pathSeparator).last;
+
+      // Ensure directory exists
+      await Directory(directoryPath).create(recursive: true);
+
+      // Load settings
+      final prefs = await SharedPreferences.getInstance();
+      final maxConnections = prefs.getInt('aria2_max_connections') ?? 16;
+      final split = prefs.getInt('aria2_split') ?? 16;
+      final minSplitSize = prefs.getString('aria2_min_split_size') ?? '1M';
+      final fileAllocation = prefs.getString('aria2_file_allocation') ?? 'falloc';
+
+      final arguments = [
+        url,
+        '--dir=$directoryPath',
+        '--out=$filename',
+        '--max-connection-per-server=$maxConnections',
+        '--split=$split',
+        '--min-split-size=$minSplitSize',
+        '--file-allocation=$fileAllocation',
+        '--summary-interval=1',
+        '--continue=true',
+        '--allow-overwrite=true',
+      ];
+
+      if (kDebugMode) {
+        print('Running: aria2c ${arguments.join(' ')}');
+      }
+
+      process = await Process.start('aria2c', arguments);
+      _runningProcesses[url] = process;
+
+      final speedNotifier = task.speed;
+      final etaNotifier = task.eta;
+
+      final regex = RegExp(
+          r'\[#\w+\s+([^\/]+)\/([^\(]+)\((\d+)%\)\s+CN:\d+\s+DL:(\S+)\s+ETA:(\S+)\]');
+
+      final lines = process.stdout
+          .transform(utf8.decoder)
+          .transform(const LineSplitter());
+
+      await for (final line in lines) {
+        final match = regex.firstMatch(line);
+        if (match != null) {
+          final percentage = int.tryParse(match.group(3) ?? '0') ?? 0;
+          final speed = match.group(4) ?? '';
+          final eta = match.group(5) ?? '';
+
+          task.progress.value = percentage / 100.0;
+          speedNotifier.value = speed;
+          etaNotifier.value = eta;
         }
+      }
 
-        var partialFileLength = await partialFile.length();
+      final exitCode = await process.exitCode;
+      _runningProcesses.remove(url);
 
-        var response = await dio.download(url, partialFilePath + tempExtension,
-            onReceiveProgress: createCallback(url, partialFileLength),
-            options: Options(
-              headers: {HttpHeaders.rangeHeader: 'bytes=$partialFileLength-'},
-            ),
-            cancelToken: cancelToken,
-            deleteOnError: true);
-
-        if (response.statusCode == HttpStatus.partialContent) {
-          var ioSink = partialFile.openWrite(mode: FileMode.writeOnlyAppend);
-          var _f = File(partialFilePath + tempExtension);
-          await ioSink.addStream(_f.openRead());
-          await _f.delete();
-          await ioSink.close();
-          await partialFile.rename(savePath);
-
-          setStatus(task, DownloadStatus.completed);
-        }
+      if (exitCode == 0) {
+        setStatus(task, DownloadStatus.completed);
       } else {
-        var response = await dio.download(url, partialFilePath,
-            onReceiveProgress: createCallback(url, 0),
-            cancelToken: cancelToken,
-            deleteOnError: false);
-
-        if (response.statusCode == HttpStatus.ok) {
-          await partialFile.rename(savePath);
-          setStatus(task, DownloadStatus.completed);
+        if (task.status.value == DownloadStatus.downloading) {
+          setStatus(task, DownloadStatus.failed);
         }
       }
     } catch (e) {
@@ -114,26 +130,10 @@ class DownloadManager {
       if (task.status.value != DownloadStatus.canceled &&
           task.status.value != DownloadStatus.paused) {
         setStatus(task, DownloadStatus.failed);
-        runningTasks--;
-
-        if (_queue.isNotEmpty) {
-          _startExecution();
-        }
         rethrow;
-      } else if (task.status.value == DownloadStatus.paused) {
-        final ioSink = partialFile.openWrite(mode: FileMode.writeOnlyAppend);
-        final f = File(partialFilePath + tempExtension);
-        if (await f.exists()) {
-          await ioSink.addStream(f.openRead());
-        }
-        await ioSink.close();
       }
-    }
-
-    runningTasks--;
-
-    if (_queue.isNotEmpty) {
-      _startExecution();
+    } finally {
+      _runningProcesses.remove(url);
     }
   }
 
@@ -198,7 +198,12 @@ class DownloadManager {
     }
     var task = getDownload(url)!;
     setStatus(task, DownloadStatus.paused);
-    task.request.cancelToken.cancel();
+    
+    final process = _runningProcesses[url];
+    if (process != null) {
+      process.kill();
+      _runningProcesses.remove(url);
+    }
 
     _queue.remove(task.request);
   }
@@ -210,7 +215,28 @@ class DownloadManager {
     var task = getDownload(url)!;
     setStatus(task, DownloadStatus.canceled);
     _queue.remove(task.request);
-    task.request.cancelToken.cancel();
+    
+    final process = _runningProcesses[url];
+    if (process != null) {
+      process.kill();
+      _runningProcesses.remove(url);
+    }
+
+    // Clean up partial files asynchronously
+    Future.delayed(const Duration(milliseconds: 100), () async {
+      final file = File(task.request.path);
+      final ariaFile = File('${task.request.path}.aria2');
+      if (await file.exists()) {
+        try {
+          await file.delete();
+        } catch (_) {}
+      }
+      if (await ariaFile.exists()) {
+        try {
+          await ariaFile.delete();
+        } catch (_) {}
+      }
+    });
   }
 
   Future<void> resumeDownload(String url) async {
@@ -219,7 +245,6 @@ class DownloadManager {
     }
     var task = getDownload(url)!;
     setStatus(task, DownloadStatus.downloading);
-    task.request.cancelToken = CancelToken();
     _queue.add(task.request);
 
     _startExecution();
