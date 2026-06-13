@@ -23,6 +23,12 @@ A Simple Linux download manager that looks good, powered by the fast and lightwe
 
 ## Installation
 
+### Arch Linux (AUR)
+If you are running Arch Linux or an Arch-based distribution, you can install the package directly from the AUR:
+```bash
+yay -S dwn-bin
+```
+
 ### Prerequisites
 - `aria2c` installed on the system
 - Flutter SDK (3.9.2 or higher)
