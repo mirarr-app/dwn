@@ -18,14 +18,53 @@ void main() {
       server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
       serverPort = server.port;
 
-      // Set up a simple file server
-      server.listen((HttpRequest request) {
+      // Set up a Range-supporting throttled file server
+      server.listen((HttpRequest request) async {
         if (request.uri.path == '/dummy.bin') {
+          final totalLength = 1024 * 1024; // 1 MB
+          int start = 0;
+          int end = totalLength - 1;
+          
+          final rangeHeader = request.headers.value(HttpHeaders.rangeHeader);
+          bool isRange = false;
+          if (rangeHeader != null && rangeHeader.startsWith('bytes=')) {
+            isRange = true;
+            final parts = rangeHeader.substring(6).split('-');
+            start = int.tryParse(parts[0]) ?? 0;
+            if (parts.length > 1 && parts[1].isNotEmpty) {
+              end = int.tryParse(parts[1]) ?? end;
+            }
+          }
+          
+          final contentLength = end - start + 1;
+          
+          if (isRange) {
+            request.response.statusCode = HttpStatus.partialContent;
+            request.response.headers.set(HttpHeaders.contentRangeHeader, 'bytes $start-$end/$totalLength');
+          } else {
+            request.response.statusCode = HttpStatus.ok;
+          }
+          
           request.response.headers.contentType = ContentType.binary;
-          request.response.headers.contentLength = 1024 * 1024; // 1 MB
-          // Write 1MB of zeros
-          request.response.add(List.generate(1024 * 1024, (index) => 0));
-          request.response.close();
+          request.response.headers.contentLength = contentLength;
+          
+          final data = List.generate(contentLength, (index) => 0);
+          final chunkSize = 50 * 1024; // 50 KB chunks
+          
+          try {
+            for (var offset = 0; offset < contentLength; offset += chunkSize) {
+              final size = (offset + chunkSize > contentLength) ? (contentLength - offset) : chunkSize;
+              request.response.add(data.sublist(offset, offset + size));
+              await request.response.flush();
+              await Future.delayed(const Duration(milliseconds: 50));
+            }
+          } catch (_) {
+            // Socket might close on client abort/pause
+          } finally {
+            try {
+              await request.response.close();
+            } catch (_) {}
+          }
         } else {
           request.response.statusCode = HttpStatus.notFound;
           request.response.close();
